@@ -18,15 +18,14 @@ module.exports = function(source) {
 };
 
 module.exports.pitch = function(request) {
-	if(this.cacheable) this.cacheable();
 	var query = loaderUtils.getOptions(this) || {};
 	var loaders = this.loaders.slice(this.loaderIndex + 1);
 	this.addDependency(this.resourcePath);
 	// We already in child compiler, return empty bundle
 	if(this[NS] === undefined) {
 		throw new Error(
-			'"extract-text-webpack-plugin" loader is used without the corresponding plugin, ' +
-			'refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example'
+			'"extract-jss-webpack-plugin" loader is used without the corresponding plugin, ' +
+			'refer to https://github.com/KijijiCA/extract-jss-webpack-plugin for the usage example'
 		);
 	} else if(this[NS] === false) {
 		return "";
@@ -37,19 +36,13 @@ module.exports.pitch = function(request) {
 			loaders = loaders.slice(+query.omit);
 		}
 		var resultSource;
-		if(query.remove) {
-			resultSource = "// removed by extract-text-webpack-plugin";
-		} else {
-			resultSource = undefined;
-		}
-
-		var childFilename = "extract-text-webpack-plugin-output-filename"; // eslint-disable-line no-path-concat
+		var childFilename = "extract-jss-webpack-plugin-output-filename"; // eslint-disable-line no-path-concat
 		var publicPath = typeof query.publicPath === "string" ? query.publicPath : this._compilation.outputOptions.publicPath;
 		var outputOptions = {
 			filename: childFilename,
 			publicPath: publicPath
 		};
-		var childCompiler = this._compilation.createChildCompiler("extract-text-webpack-plugin", outputOptions);
+		var childCompiler = this._compilation.createChildCompiler("extract-jss-webpack-plugin", outputOptions);
 		childCompiler.apply(new NodeTemplatePlugin(outputOptions));
 		childCompiler.apply(new LibraryTemplatePlugin(null, "commonjs2"));
 		childCompiler.apply(new NodeTargetPlugin());
@@ -109,9 +102,8 @@ module.exports.pitch = function(request) {
 				return callback(new Error("Didn't get a result from child compiler"));
 			}
 			try {
-				var text = this.exec(source, request);
-				if(typeof text === "string")
-					text = [[0, text]];
+				var json = this.exec(source, request);
+				var text = [[0, json.styles + '\n']];
 				text.forEach(function(item) {
 					var id = item[0];
 					compilation.modules.forEach(function(module) {
@@ -120,9 +112,7 @@ module.exports.pitch = function(request) {
 					});
 				});
 				this[NS](text, query);
-				if(text.locals && typeof resultSource !== "undefined") {
-					resultSource += "\nmodule.exports = " + JSON.stringify(text.locals) + ";";
-				}
+				resultSource = "module.exports = " + JSON.stringify(json.classes) + ";";
 			} catch(e) {
 				return callback(e);
 			}

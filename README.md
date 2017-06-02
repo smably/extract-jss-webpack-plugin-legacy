@@ -12,8 +12,8 @@
     <img width="200" height="200"
       src="https://webpack.js.org/assets/icon-square-big.svg">
   </a>
-  <h1>Extract Text Plugin</h1>
-  <p>Extract text from a bundle, or bundles, into a separate file.</p>
+  <h1>Extract JSS Plugin</h1>
+  <p>Extract JSS from a bundle, or bundles, into a separate file.</p>
 </div>
 
 <h2 align="center">Install</h2>
