@@ -102,8 +102,8 @@ module.exports.pitch = function(request) {
 				return callback(new Error("Didn't get a result from child compiler"));
 			}
 			try {
-				var json = this.exec(source, request);
-				var text = [[0, json.styles + '\n']];
+				var jss = this.exec(source, request);
+				var text = [[0, jss.__compiledStyles + '\n']];
 				text.forEach(function(item) {
 					var id = item[0];
 					compilation.modules.forEach(function(module) {
@@ -112,7 +112,8 @@ module.exports.pitch = function(request) {
 					});
 				});
 				this[NS](text, query);
-				resultSource = "module.exports = " + JSON.stringify(json.classes) + ";";
+				delete jss.__compiledStyles;
+				resultSource = "module.exports = " + JSON.stringify(jss) + ";";
 			} catch(e) {
 				return callback(e);
 			}
